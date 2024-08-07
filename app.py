@@ -14,6 +14,14 @@ import os
 # 設置 OpenAI API 金鑰
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
+# 初始化 session state
+if 'qa_chain' not in st.session_state:
+    st.session_state.qa_chain = None
+if 'summary' not in st.session_state:
+    st.session_state.summary = None
+if 'questions' not in st.session_state:
+    st.session_state.questions = None
+
 def get_pdf_text(pdf_file):
     pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file.getvalue()))
     text = ""
@@ -21,7 +29,6 @@ def get_pdf_text(pdf_file):
         text += page.extract_text()
     return text
 
-@st.cache_resource
 def process_pdf(pdf_file):
     text = get_pdf_text(pdf_file)
     
@@ -75,34 +82,32 @@ st.title("PDF 智能問答系統 (使用 GPT-4)")
 
 uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
 
-if uploaded_file is not None:
-    try:
-        qa_chain, documents = process_pdf(uploaded_file)
-        st.success("PDF上傳並處理成功！")
+if uploaded_file is not None and st.session_state.qa_chain is None:
+    with st.spinner("正在處理PDF文件..."):
+        st.session_state.qa_chain, documents = process_pdf(uploaded_file)
+        st.session_state.summary = get_summary(documents)
+        st.session_state.questions = generate_questions(st.session_state.summary)
+    st.success("PDF上傳並處理成功！")
 
-        with st.spinner("正在生成文件摘要..."):
-            summary = get_summary(documents)
-        
-        st.subheader("文件摘要")
-        st.write(summary)
+if st.session_state.qa_chain is not None:
+    st.subheader("文件摘要")
+    st.write(st.session_state.summary)
 
-        with st.spinner("正在生成問題建議..."):
-            questions = generate_questions(summary)
-        
-        st.subheader("選擇或輸入問題")
-        question_options = ["請選擇一個問題"] + questions + ["自定義問題"]
-        selected_question = st.selectbox("", question_options)
+    st.subheader("選擇或輸入問題")
+    question_options = ["請選擇一個問題"] + st.session_state.questions + ["自定義問題"]
+    selected_question = st.selectbox("", question_options, key="question_select")
 
-        if selected_question == "自定義問題":
-            user_question = st.text_input("請輸入您的問題：")
-        elif selected_question != "請選擇一個問題":
-            user_question = selected_question
-        else:
-            user_question = ""
+    if selected_question == "自定義問題":
+        user_question = st.text_input("請輸入您的問題：", key="custom_question")
+    elif selected_question != "請選擇一個問題":
+        user_question = selected_question
+    else:
+        user_question = ""
 
-        if user_question:
+    if user_question:
+        if st.button("生成答案"):
             with st.spinner("正在生成答案..."):
-                result = qa_chain({"query": user_question})
+                result = st.session_state.qa_chain({"query": user_question})
                 answer = result["result"]
                 source_docs = result["source_documents"]
 
@@ -113,9 +118,6 @@ if uploaded_file is not None:
             for i, doc in enumerate(source_docs):
                 st.write(f"來源 {i+1}:")
                 st.write(f"內容: {doc.page_content[:200]}...")
-
-    except Exception as e:
-        st.error(f"處理過程中發生錯誤：{str(e)}")
 
 st.write("本應用程式使用 Langchain、FAISS 向量數據庫和 GPT-4 模型進行智能問答。")
 st.info("注意：本應用程式需要 OpenAI API 金鑰才能運作。")
