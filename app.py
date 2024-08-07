@@ -66,6 +66,3 @@ if uploaded_file is not None:
             st.write(f"來源 {i+1}:")
             st.write(f"頁碼: {doc.metadata['page']}")
             st.write(f"內容: {doc.page_content[:200]}...")
-
-st.sidebar.write("本應用程式使用 Langchain、FAISS 向量數據庫和 gpt-4-mini 模型進行智能問答。")
-st.sidebar.info("注意：本應用程式需要 OpenAI API 金鑰才能運作。")
