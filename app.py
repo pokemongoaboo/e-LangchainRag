@@ -2,11 +2,11 @@ import streamlit as st
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
-from langchain.document_loaders import PyPDFLoader
+from langchain.chat_models import ChatOpenAI
 from langchain.text_splitter import CharacterTextSplitter
-
-import tempfile
+from langchain.docstore.document import Document
+import PyPDF2
+import io
 import os
 
 # 設置 OpenAI API 金鑰
@@ -14,35 +14,36 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 @st.cache_resource
 def process_pdf(pdf_file):
-    # 創建臨時文件
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-        tmp_file.write(pdf_file.getvalue())
-        tmp_file_path = tmp_file.name
-
-    # 載入和分割文檔
-    loader = PyPDFLoader(tmp_file_path)
-    documents = loader.load()
+    # 直接從上傳的文件讀取 PDF
+    pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file.getvalue()))
+    
+    # 提取文本
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    
+    # 分割文本
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-    texts = text_splitter.split_documents(documents)
-
+    texts = text_splitter.split_text(text)
+    
+    # 創建文檔
+    documents = [Document(page_content=t) for t in texts]
+    
     # 創建向量存儲
     embeddings = OpenAIEmbeddings()
-    vectorstore = FAISS.from_documents(texts, embeddings)
+    vectorstore = FAISS.from_documents(documents, embeddings)
 
     # 創建檢索鏈
     qa_chain = RetrievalQA.from_chain_type(
-        llm=OpenAI(model_name="gpt-4o-mini", temperature=0),
+        llm=ChatOpenAI(model_name="gpt-4o-mini", temperature=0),
         chain_type="stuff",
         retriever=vectorstore.as_retriever(),
         return_source_documents=True
     )
 
-    # 刪除臨時文件
-    os.unlink(tmp_file_path)
-
     return qa_chain
 
-st.title("PDF 智能問答系統 (使用 gpt-4-mini)")
+st.title("PDF 智能問答系統 (使用 GPT-4)")
 
 uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
 
@@ -64,5 +65,7 @@ if uploaded_file is not None:
         st.subheader("參考來源：")
         for i, doc in enumerate(source_docs):
             st.write(f"來源 {i+1}:")
-            st.write(f"頁碼: {doc.metadata['page']}")
             st.write(f"內容: {doc.page_content[:200]}...")
+
+st.sidebar.write("本應用程式使用 Langchain、FAISS 向量數據庫和 GPT-4 模型進行智能問答。")
+st.sidebar.info("注意：本應用程式需要 OpenAI API 金鑰才能運作。")
