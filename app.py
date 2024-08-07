@@ -10,6 +10,7 @@ from langchain.prompts import PromptTemplate
 import PyPDF2
 import io
 import os
+import requests
 
 # 設置 OpenAI API 金鑰
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
@@ -22,8 +23,14 @@ if 'summary' not in st.session_state:
 if 'questions' not in st.session_state:
     st.session_state.questions = None
 
+# 預設的 PDF 檔案 URL
+PDF_URLS = {
+    "學習新知": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
+    "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
+}
+
 def get_pdf_text(pdf_file):
-    pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file.getvalue()))
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
     text = ""
     for page in pdf_reader.pages:
         text += page.extract_text()
@@ -80,14 +87,27 @@ def generate_questions(summary):
 
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
-uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
+# 選擇 PDF 來源
+pdf_source = st.radio("選擇 PDF 來源", ["學習新知", "股市早報", "自訂上傳檔案"])
 
-if uploaded_file is not None and st.session_state.qa_chain is None:
+if pdf_source in ["學習新知", "股市早報"]:
+    pdf_url = PDF_URLS[pdf_source]
+    response = requests.get(pdf_url)
+    pdf_file = io.BytesIO(response.content)
+elif pdf_source == "自訂上傳檔案":
+    uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
+    if uploaded_file is not None:
+        pdf_file = uploaded_file
+    else:
+        st.warning("請上傳一個 PDF 檔案")
+        st.stop()
+
+if pdf_file and st.session_state.qa_chain is None:
     with st.spinner("正在處理PDF文件..."):
-        st.session_state.qa_chain, documents = process_pdf(uploaded_file)
+        st.session_state.qa_chain, documents = process_pdf(pdf_file)
         st.session_state.summary = get_summary(documents)
         st.session_state.questions = generate_questions(st.session_state.summary)
-    st.success("PDF上傳並處理成功！")
+    st.success("PDF處理成功！")
 
 if st.session_state.qa_chain is not None:
     st.subheader("文件摘要")
