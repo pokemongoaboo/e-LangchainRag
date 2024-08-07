@@ -5,6 +5,8 @@ from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
+from langchain.chains.summarize import load_summarize_chain
+from langchain.prompts import PromptTemplate
 import PyPDF2
 import io
 import os
@@ -12,15 +14,16 @@ import os
 # 設置 OpenAI API 金鑰
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
-@st.cache_resource
-def process_pdf(pdf_file):
-    # 直接從上傳的文件讀取 PDF
+def get_pdf_text(pdf_file):
     pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file.getvalue()))
-    
-    # 提取文本
     text = ""
     for page in pdf_reader.pages:
         text += page.extract_text()
+    return text
+
+@st.cache_resource
+def process_pdf(pdf_file):
+    text = get_pdf_text(pdf_file)
     
     # 分割文本
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
@@ -41,15 +44,46 @@ def process_pdf(pdf_file):
         return_source_documents=True
     )
 
-    return qa_chain
+    return qa_chain, documents
+
+def get_summary(documents):
+    llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
+    chain = load_summarize_chain(llm, chain_type="map_reduce")
+    summary = chain.run(documents)
+    return summary
+
+def generate_questions(summary):
+    llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.7)
+    template = """
+    根據以下文件摘要，生成 3-5 個相關的問題：
+
+    摘要：{summary}
+
+    請提供 3-5 個與此摘要相關的問題：
+    """
+    prompt = PromptTemplate(template=template, input_variables=["summary"])
+    questions = llm(prompt.format(summary=summary))
+    return questions
 
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
 uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
 
 if uploaded_file is not None:
-    qa_chain = process_pdf(uploaded_file)
+    qa_chain, documents = process_pdf(uploaded_file)
     st.success("PDF上傳並處理成功！")
+
+    with st.spinner("正在生成文件摘要..."):
+        summary = get_summary(documents)
+    
+    st.subheader("文件摘要")
+    st.write(summary)
+
+    with st.spinner("正在生成問題建議..."):
+        questions = generate_questions(summary)
+    
+    st.subheader("建議的問題")
+    st.write(questions)
 
     user_question = st.text_input("請輸入您的問題：")
 
