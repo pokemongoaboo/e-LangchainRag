@@ -61,15 +61,15 @@ def get_summary(documents):
 def generate_questions(summary):
     llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.7)
     template = """
-    根據以下文件摘要，生成3-5個相關的問題：
+    根據以下文件摘要，生成5個相關的問題：
 
     摘要：{summary}
 
-    請用繁體中文提供3-5個與此摘要相關的問題：
+    請用繁體中文提供5個與此摘要相關的問題，每個問題獨立成行：
     """
     prompt = PromptTemplate(template=template, input_variables=["summary"])
     questions = llm.predict(prompt.format(summary=summary))
-    return questions
+    return questions.strip().split('\n')
 
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
@@ -89,10 +89,16 @@ if uploaded_file is not None:
         with st.spinner("正在生成問題建議..."):
             questions = generate_questions(summary)
         
-        st.subheader("建議的問題")
-        st.write(questions)
+        st.subheader("選擇或輸入問題")
+        question_options = ["請選擇一個問題"] + questions + ["自定義問題"]
+        selected_question = st.selectbox("", question_options)
 
-        user_question = st.text_input("請輸入您的問題：")
+        if selected_question == "自定義問題":
+            user_question = st.text_input("請輸入您的問題：")
+        elif selected_question != "請選擇一個問題":
+            user_question = selected_question
+        else:
+            user_question = ""
 
         if user_question:
             with st.spinner("正在生成答案..."):
@@ -107,8 +113,9 @@ if uploaded_file is not None:
             for i, doc in enumerate(source_docs):
                 st.write(f"來源 {i+1}:")
                 st.write(f"內容: {doc.page_content[:200]}...")
+
     except Exception as e:
         st.error(f"處理過程中發生錯誤：{str(e)}")
 
-st.sidebar.write("本應用程式使用 Langchain、FAISS 向量數據庫和 GPT-4 模型進行智能問答。")
-st.sidebar.info("注意：本應用程式需要 OpenAI API 金鑰才能運作。")
+st.write("本應用程式使用 Langchain、FAISS 向量數據庫和 GPT-4 模型進行智能問答。")
+st.info("注意：本應用程式需要 OpenAI API 金鑰才能運作。")
