@@ -48,58 +48,67 @@ def process_pdf(pdf_file):
 
 def get_summary(documents):
     llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
-    chain = load_summarize_chain(llm, chain_type="map_reduce")
+    prompt_template = """請用繁體中文總結以下文件的內容，並提供一個簡潔的摘要：
+
+    {text}
+
+    繁體中文摘要："""
+    PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
+    chain = load_summarize_chain(llm, chain_type="map_reduce", map_prompt=PROMPT, combine_prompt=PROMPT)
     summary = chain.run(documents)
     return summary
 
 def generate_questions(summary):
     llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.7)
     template = """
-    根據以下文件摘要，生成 3-5 個相關的問題：
+    根據以下文件摘要，生成3-5個相關的問題：
 
     摘要：{summary}
 
-    請提供 3-5 個與此摘要相關的問題：
+    請用繁體中文提供3-5個與此摘要相關的問題：
     """
     prompt = PromptTemplate(template=template, input_variables=["summary"])
     questions = llm(prompt.format(summary=summary))
-    return questions
+    return questions.content if hasattr(questions, 'content') else questions
 
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
 uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
 
 if uploaded_file is not None:
-    qa_chain, documents = process_pdf(uploaded_file)
-    st.success("PDF上傳並處理成功！")
+    try:
+        qa_chain, documents = process_pdf(uploaded_file)
+        st.success("PDF上傳並處理成功！")
 
-    with st.spinner("正在生成文件摘要..."):
-        summary = get_summary(documents)
-    
-    st.subheader("文件摘要")
-    st.write(summary)
+        with st.spinner("正在生成文件摘要..."):
+            summary = get_summary(documents)
+        
+        st.subheader("文件摘要")
+        st.write(summary)
 
-    with st.spinner("正在生成問題建議..."):
-        questions = generate_questions(summary)
-    
-    st.subheader("建議的問題")
-    st.write(questions)
+        with st.spinner("正在生成問題建議..."):
+            questions = generate_questions(summary)
+        
+        st.subheader("建議的問題")
+        st.write(questions)
 
-    user_question = st.text_input("請輸入您的問題：")
+        user_question = st.text_input("請輸入您的問題：")
 
-    if user_question:
-        with st.spinner("正在生成答案..."):
-            result = qa_chain({"query": user_question})
-            answer = result["result"]
-            source_docs = result["source_documents"]
+        if user_question:
+            with st.spinner("正在生成答案..."):
+                result = qa_chain({"query": user_question})
+                answer = result["result"]
+                source_docs = result["source_documents"]
 
-        st.subheader("答案：")
-        st.write(answer)
+            st.subheader("答案：")
+            st.write(answer)
 
-        st.subheader("參考來源：")
-        for i, doc in enumerate(source_docs):
-            st.write(f"來源 {i+1}:")
-            st.write(f"內容: {doc.page_content[:200]}...")
+            st.subheader("參考來源：")
+            for i, doc in enumerate(source_docs):
+                st.write(f"來源 {i+1}:")
+                st.write(f"內容: {doc.page_content[:200]}...")
+    except Exception as e:
+        st.error(f"處理過程中發生錯誤：{str(e)}")
 
 st.sidebar.write("本應用程式使用 Langchain、FAISS 向量數據庫和 GPT-4 模型進行智能問答。")
 st.sidebar.info("注意：本應用程式需要 OpenAI API 金鑰才能運作。")
