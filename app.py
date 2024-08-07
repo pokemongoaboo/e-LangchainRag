@@ -1,8 +1,8 @@
 import streamlit as st
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
@@ -68,8 +68,8 @@ def generate_questions(summary):
     請用繁體中文提供3-5個與此摘要相關的問題：
     """
     prompt = PromptTemplate(template=template, input_variables=["summary"])
-    questions = llm(prompt.format(summary=summary))
-    return questions.content if hasattr(questions, 'content') else questions
+    questions = llm.predict(prompt.format(summary=summary))
+    return questions
 
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
