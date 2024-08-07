@@ -29,7 +29,8 @@ if 'pdf_processed' not in st.session_state:
 # 預設的 PDF 檔案 URL
 PDF_URLS = {
     "學習新知": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
-    "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"  # 替換為實際的 URL
+    "課程問答": "https://drive.google.com/file/d/11DG5SOJb7nmlpcqcA2d2Vb_PoFltacn2/view?usp=sharing",
+    "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
 }
 
 def get_pdf_from_google_drive(url):
@@ -105,9 +106,9 @@ def generate_questions(summary):
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
 # 選擇 PDF 來源
-pdf_source = st.radio("選擇 PDF 來源", ["學習新知", "股市早報", "自訂上傳檔案"])
+pdf_source = st.radio("選擇 PDF 來源", ["學習新知","課程問答","股市早報", "自訂上傳檔案"])
 
-if pdf_source in ["學習新知", "股市早報"]:
+if pdf_source in ["學習新知", "課程問答", "股市早報"]:
     pdf_url = PDF_URLS[pdf_source]
     if 'drive.google.com' in pdf_url:
         pdf_file = get_pdf_from_google_drive(pdf_url)
