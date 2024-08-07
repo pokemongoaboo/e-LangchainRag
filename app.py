@@ -11,6 +11,7 @@ import PyPDF2
 import io
 import os
 import requests
+import re
 
 # 設置 OpenAI API 金鑰
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
@@ -22,22 +23,38 @@ if 'summary' not in st.session_state:
     st.session_state.summary = None
 if 'questions' not in st.session_state:
     st.session_state.questions = None
+if 'pdf_processed' not in st.session_state:
+    st.session_state.pdf_processed = False
 
 # 預設的 PDF 檔案 URL
 PDF_URLS = {
     "學習新知": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
-    "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
+    "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"  # 替換為實際的 URL
 }
 
+def get_pdf_from_google_drive(url):
+    # 從 Google Drive 連結中提取文件 ID
+    file_id = re.findall(r'/file/d/([^/]+)', url)[0]
+    download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    
+    response = requests.get(download_url)
+    return io.BytesIO(response.content)
+
 def get_pdf_text(pdf_file):
-    pdf_reader = PyPDF2.PdfReader(pdf_file)
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text()
-    return text
+    try:
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+        return text
+    except Exception as e:
+        st.error(f"讀取 PDF 時發生錯誤：{str(e)}")
+        return None
 
 def process_pdf(pdf_file):
     text = get_pdf_text(pdf_file)
+    if text is None:
+        return None, None
     
     # 分割文本
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
@@ -92,8 +109,11 @@ pdf_source = st.radio("選擇 PDF 來源", ["學習新知", "股市早報", "自
 
 if pdf_source in ["學習新知", "股市早報"]:
     pdf_url = PDF_URLS[pdf_source]
-    response = requests.get(pdf_url)
-    pdf_file = io.BytesIO(response.content)
+    if 'drive.google.com' in pdf_url:
+        pdf_file = get_pdf_from_google_drive(pdf_url)
+    else:
+        response = requests.get(pdf_url)
+        pdf_file = io.BytesIO(response.content)
 elif pdf_source == "自訂上傳檔案":
     uploaded_file = st.file_uploader("請選擇一個PDF檔案", type="pdf")
     if uploaded_file is not None:
@@ -102,14 +122,22 @@ elif pdf_source == "自訂上傳檔案":
         st.warning("請上傳一個 PDF 檔案")
         st.stop()
 
-if pdf_file and st.session_state.qa_chain is None:
-    with st.spinner("正在處理PDF文件..."):
-        st.session_state.qa_chain, documents = process_pdf(pdf_file)
-        st.session_state.summary = get_summary(documents)
-        st.session_state.questions = generate_questions(st.session_state.summary)
-    st.success("PDF處理成功！")
+# 添加確認按鈕
+if st.button("確認選擇並處理 PDF"):
+    if 'pdf_file' in locals():
+        with st.spinner("正在處理PDF文件..."):
+            st.session_state.qa_chain, documents = process_pdf(pdf_file)
+            if st.session_state.qa_chain is not None:
+                st.session_state.summary = get_summary(documents)
+                st.session_state.questions = generate_questions(st.session_state.summary)
+                st.session_state.pdf_processed = True
+                st.success("PDF處理成功！")
+            else:
+                st.error("PDF 處理失敗，請檢查文件是否有效。")
+    else:
+        st.error("請先選擇或上傳一個 PDF 文件。")
 
-if st.session_state.qa_chain is not None:
+if st.session_state.pdf_processed:
     st.subheader("文件摘要")
     st.write(st.session_state.summary)
 
