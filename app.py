@@ -40,31 +40,32 @@ st.markdown("""
         display: inline-block;
         padding: 15px 30px;
         font-size: 20px;
-        cursor: pointer;
         text-align: center;
         text-decoration: none;
-        outline: none;
-        color: #fff;
+        color: #ffffff;
         background-color: #4CAF50;
-        border: none;
         border-radius: 15px;
+        border: none;
         box-shadow: 0 9px #999;
+        transition: all 0.3s ease 0s;
     }
-    .big-button:hover {background-color: #3e8e41}
-    .big-button:active {
+    .big-button:hover {
         background-color: #3e8e41;
         box-shadow: 0 5px #666;
         transform: translateY(4px);
+    }
+    .big-button:active {
+        background-color: #3e8e41;
+        box-shadow: 0 2px #666;
+        transform: translateY(8px);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # 在頁面頂部添加大按鈕
-st.markdown("""
-<button class="big-button" onclick="window.open('https://lunarexp.streamlit.app/', '_blank')">查看農民曆</button>
-""", unsafe_allow_html=True)
+st.markdown("[查看農民曆](https://lunarexp.streamlit.app/)", unsafe_allow_html=True)
 
-# 其他函數保持不變
+# 其餘代碼保持不變
 def get_pdf_from_google_drive(url):
     file_id = re.findall(r'/file/d/([^/]+)', url)[0]
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
