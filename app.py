@@ -107,7 +107,7 @@ def generate_questions(summary):
 st.title("PDF 智能問答系統 (使用 GPT-4)")
 
 # 選擇 PDF 來源
-pdf_source = st.radio("選擇 PDF 來源", ["學習新知","課程問答","股市早報", "自訂上傳檔案"])
+pdf_source = st.radio("選擇 PDF 來源", ["查農民曆","學習新知","課程問答","股市早報", "自訂上傳檔案"])
 
 if pdf_source in ["學習新知", "課程問答", "股市早報"]:
     pdf_url = PDF_URLS[pdf_source]
