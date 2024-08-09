@@ -28,6 +28,7 @@ if 'pdf_processed' not in st.session_state:
 
 # 預設的 PDF 檔案 URL
 PDF_URLS = {
+    "查農民曆": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
     "學習新知": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
     "課程問答": "https://drive.google.com/file/d/11DG5SOJb7nmlpcqcA2d2Vb_PoFltacn2/view?usp=sharing",
     "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
