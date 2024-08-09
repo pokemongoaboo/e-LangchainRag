@@ -63,7 +63,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 在頁面頂部添加大按鈕
-st.markdown("[查看農民曆](https://lunarexp.streamlit.app/)", unsafe_allow_html=True)
+# st.markdown("[查看農民曆](https://lunarexp.streamlit.app/)", unsafe_allow_html=True)
+st.markdown('<a href="https: //lunarexp. streamlit.app/" target="_blank" "class="big-button">前往查看農民曆</a>',unsafe_allow_html=True)
 
 # 其餘代碼保持不變
 def get_pdf_from_google_drive(url):
