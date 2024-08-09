@@ -33,38 +33,12 @@ PDF_URLS = {
     "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
 }
 
-# 添加 CSS 樣式
-st.markdown("""
-<style>
-    .big-button {
-        display: inline-block;
-        padding: 15px 30px;
-        font-size: 20px;
-        text-align: center;
-        text-decoration: none;
-        color: #ffffff;
-        background-color: #4CAF50;
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 9px #999;
-        transition: all 0.3s ease 0s;
-    }
-    .big-button:hover {
-        background-color: #3e8e41;
-        box-shadow: 0 5px #666;
-        transform: translateY(4px);
-    }
-    .big-button:active {
-        background-color: #3e8e41;
-        box-shadow: 0 2px #666;
-        transform: translateY(8px);
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # 在頁面頂部添加大按鈕
-st.markdown("[查看農民曆](https://lunarexp.streamlit.app/)", unsafe_allow_html=True)
+#st.markdown("[查看農民曆](https://lunarexp.streamlit.app/)", unsafe_allow_html=True)
 # st.markdown('<a href="https: //lunarexp. streamlit.app/" target="_blank" "class="big-button">前往查看農民曆</a>',unsafe_allow_html=True)
+
+st.link_button("前往查看農民曆", "https://lunarexp.streamlit.app/")
 
 # 其餘代碼保持不變
 def get_pdf_from_google_drive(url):
