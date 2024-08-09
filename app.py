@@ -41,7 +41,7 @@ button_style = """
     display: inline-block;
     padding: 0.5em 1em;
     color: #FFFFFF;
-    background-color: ##A5D6A7;
+    background-color: #80CBC4;
     border-radius: 5px;
     text-decoration: none;
     font-weight: bold;
