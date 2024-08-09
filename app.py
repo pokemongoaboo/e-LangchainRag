@@ -33,14 +33,41 @@ PDF_URLS = {
     "股市早報": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
 }
 
-# 在頁面頂部添加農民曆連結
-st.markdown("[查看農民曆](https://lunarexp.streamlit.app/)")
+# 添加 CSS 樣式
+st.markdown("""
+<style>
+    .big-button {
+        display: inline-block;
+        padding: 15px 30px;
+        font-size: 20px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        outline: none;
+        color: #fff;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 9px #999;
+    }
+    .big-button:hover {background-color: #3e8e41}
+    .big-button:active {
+        background-color: #3e8e41;
+        box-shadow: 0 5px #666;
+        transform: translateY(4px);
+    }
+</style>
+""", unsafe_allow_html=True)
 
+# 在頁面頂部添加大按鈕
+st.markdown("""
+<button class="big-button" onclick="window.open('https://lunarexp.streamlit.app/', '_blank')">查看農民曆</button>
+""", unsafe_allow_html=True)
+
+# 其他函數保持不變
 def get_pdf_from_google_drive(url):
-    # 從 Google Drive 連結中提取文件 ID
     file_id = re.findall(r'/file/d/([^/]+)', url)[0]
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-    
     response = requests.get(download_url)
     return io.BytesIO(response.content)
 
@@ -59,26 +86,17 @@ def process_pdf(pdf_file):
     text = get_pdf_text(pdf_file)
     if text is None:
         return None, None
-    
-    # 分割文本
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_text(text)
-    
-    # 創建文檔
     documents = [Document(page_content=t) for t in texts]
-    
-    # 創建向量存儲
     embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_documents(documents, embeddings)
-
-    # 創建檢索鏈
     qa_chain = RetrievalQA.from_chain_type(
         llm=ChatOpenAI(model_name="gpt-4o-mini", temperature=0),
         chain_type="stuff",
         retriever=vectorstore.as_retriever(),
         return_source_documents=True
     )
-
     return qa_chain, documents
 
 def get_summary(documents):
