@@ -41,7 +41,7 @@ button_style = """
     display: inline-block;
     padding: 0.5em 1em;
     color: #FFFFFF;
-    background-color: #FF4B4B;
+    background-color: #4CAF50;
     border-radius: 5px;
     text-decoration: none;
     font-weight: bold;
@@ -49,7 +49,7 @@ button_style = """
     transition: background-color 0.3s;
 }
 .custom-button:hover {
-    background-color: #FF7171;
+    background-color: #45a049;
 }
 </style>
 """
