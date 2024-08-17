@@ -172,7 +172,7 @@ if st.session_state.pdf_processed:
         user_question = ""
 
     if user_question:
-        if st.button("生成答案(Generating Answer"):
+        if st.button("生成答案(Generating Answer)"):
             with st.spinner("正在生成答案(Generating Answr...)"):
                 result = st.session_state.qa_chain({"query": user_question})
                 answer = result["result"]
