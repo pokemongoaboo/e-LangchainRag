@@ -124,9 +124,9 @@ def generate_questions(summary):
 st.title("PDF 智能問答系統 (PDF Summary & QA)")
 
 # 選擇 PDF 來源
-pdf_source = st.radio("選擇 PDF 來源(PDF Source)", ["學習新知(New Knowledge from Cloud Drives)", "課程問答(Course QA from Study Group)", "股市早報(Stock infos from Service Agent)", "自訂上傳檔案(Upload your file)"])
+pdf_source = st.radio("選擇 PDF 來源(PDF Source)", ["學習新知-New Knowledge from Cloud Drives", "課程問答-Course QA from Study Group", "股市早報-Stock infos from Service Agent", "自訂上傳檔案-Upload your file"])
 
-if pdf_source in ["學習新知(New Knowledge from Cloud Drives)", "課程問答(Course QA from Study Group)", "股市早報(Stock infos from Service Agent)"]:
+if pdf_source in ["學習新知-New Knowledge from Cloud Drives", "課程問答-Course QA from Study Group", "股市早報-Stock infos from Service Agent"]:
     pdf_url = PDF_URLS[pdf_source]
     if 'drive.google.com' in pdf_url:
         pdf_file = get_pdf_from_google_drive(pdf_url)
