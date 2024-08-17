@@ -142,7 +142,7 @@ elif pdf_source == "自訂上傳檔案(Upload your file)":
         st.stop()
 
 # 添加確認按鈕
-if st.button("確認選擇並處理 PDF (Comfirmation"):
+if st.button("確認選擇並處理 PDF (Comfirmation)"):
     if 'pdf_file' in locals():
         with st.spinner("正在處理PDF文件(Processing the PDF)..."):
             st.session_state.qa_chain, documents = process_pdf(pdf_file)
