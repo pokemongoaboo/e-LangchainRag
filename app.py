@@ -123,7 +123,7 @@ def generate_questions(summary):
 
 # st.title("知識檔案智能問答系統 (PDF Summary & QA)")
 
-st.set_page_config(page_title="知識檔案智能問答系統 (PDF Summary & QA)", layout="wide")
+# st.set_page_config(page_title="知識檔案智能問答系統 (PDF Summary & QA)", layout="wide")
 
 # 使用 markdown 來創建置中的兩行標題
 st.markdown("""
