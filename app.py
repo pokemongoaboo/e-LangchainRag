@@ -34,33 +34,6 @@ PDF_URLS = {
 }
 
 
-# 定義按鈕樣式的 CSS
-button_style = """
-<style>
-.custom-button {
-    display: inline-block;
-    padding: 0.5em 1em;
-    color: #FFFFFF;
-    background-color: #80CBC4;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    transition: background-color 0.3s;
-}
-.custom-button:hover {
-    background-color: #45a049;
-}
-</style>
-"""
-
-# 添加 CSS 到頁面
-st.markdown(button_style, unsafe_allow_html=True)
-
-# 創建一個看起來像按鈕的鏈接
-st.markdown('<a href="https://e-lunarexp.streamlit.app/" target="_blank" class="custom-button">前往查看農民曆</a>', unsafe_allow_html=True)
-
-
 # 其餘代碼保持不變
 def get_pdf_from_google_drive(url):
     file_id = re.findall(r'/file/d/([^/]+)', url)[0]
@@ -133,6 +106,35 @@ st.markdown("""
 
 # 添加一些間距
 st.markdown("<br>", unsafe_allow_html=True)
+
+
+# 定義按鈕樣式的 CSS
+button_style = """
+<style>
+.custom-button {
+    display: inline-block;
+    padding: 0.5em 1em;
+    color: #FFFFFF;
+    background-color: #80CBC4;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+.custom-button:hover {
+    background-color: #45a049;
+}
+</style>
+"""
+
+# 添加 CSS 到頁面
+st.markdown(button_style, unsafe_allow_html=True)
+
+# 創建一個看起來像按鈕的鏈接
+st.markdown('<a href="https://e-lunarexp.streamlit.app/" target="_blank" class="custom-button">前往查看農民曆</a>', unsafe_allow_html=True)
+
+
 
 
 # 選擇 PDF 來源
