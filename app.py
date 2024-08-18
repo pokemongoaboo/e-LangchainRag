@@ -28,9 +28,9 @@ if 'pdf_processed' not in st.session_state:
 
 # 預設的 PDF 檔案 URL
 PDF_URLS = {
-    "學習新知-New Knowledge from Cloud Drives": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
-    "課程問答-Course QA from Study Group": "https://drive.google.com/file/d/11DG5SOJb7nmlpcqcA2d2Vb_PoFltacn2/view?usp=sharing",
-    "股市早報-Stock infos from Service Agent": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
+    "學習新知-New Knowledge from Cloud Drives(Sample File)": "https://drive.google.com/file/d/1yhJvKTfaG_uSWJQv3oAVs__03_IZCGLX/view?usp=sharing",
+    "課程問答-Course QA from Study Group(Sample File)": "https://drive.google.com/file/d/11DG5SOJb7nmlpcqcA2d2Vb_PoFltacn2/view?usp=sharing",
+    "股市早報-Stock infos from Service Agent(Sample File)": "https://drive.google.com/file/d/14cmJF9-wnRYgDbMd8DRQS4KdhyO2axjN/view"
 }
 
 
@@ -136,9 +136,9 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # 選擇 PDF 來源
-pdf_source = st.radio("選擇 PDF 來源(PDF Source)", ["學習新知-New Knowledge from Cloud Drives", "課程問答-Course QA from Study Group", "股市早報-Stock infos from Service Agent", "自訂上傳檔案-Upload your file"])
+pdf_source = st.radio("選擇 PDF 來源(PDF Source)", ["學習新知-New Knowledge from Cloud Drives(Sample File)", "課程問答-Course QA from Study Group(Sample File)", "股市早報-Stock infos from Service Agent(Sample File)", "自訂上傳檔案-Upload your file"])
 
-if pdf_source in ["學習新知-New Knowledge from Cloud Drives", "課程問答-Course QA from Study Group", "股市早報-Stock infos from Service Agent"]:
+if pdf_source in ["學習新知-New Knowledge from Cloud Drives(Sample File)", "課程問答-Course QA from Study Group(Sample File)", "股市早報-Stock infos from Service Agent(Sample File)"]:
     pdf_url = PDF_URLS[pdf_source]
     if 'drive.google.com' in pdf_url:
         pdf_file = get_pdf_from_google_drive(pdf_url)
