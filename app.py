@@ -58,7 +58,7 @@ button_style = """
 st.markdown(button_style, unsafe_allow_html=True)
 
 # 創建一個看起來像按鈕的鏈接
-# st.markdown('<a href="https://lunarexp.streamlit.app/" target="_blank" class="custom-button">前往查看農民曆</a>', unsafe_allow_html=True)
+st.markdown('<a href="https://e-lunarexp.streamlit.app/" target="_blank" class="custom-button">前往查看農民曆</a>', unsafe_allow_html=True)
 
 
 # 其餘代碼保持不變
