@@ -121,19 +121,18 @@ def generate_questions(summary):
     questions = llm.predict(prompt.format(summary=summary))
     return questions.strip().split('\n')
 
-#st.title("知識檔案智能問答系統 (PDF Summary & QA)")
+# st.title("知識檔案智能問答系統 (PDF Summary & QA)")
 
-    st.set_page_config(page_title="知識檔案智能問答系統 (PDF Summary & QA)", layout="wide")
+st.set_page_config(page_title="知識檔案智能問答系統 (PDF Summary & QA)", layout="wide")
 
-    # 使用 markdown 來創建置中的兩行標題
-    st.markdown("""
-    <h1 style="text-align: center;">知識檔案智能問答系統</h1>
-    <h2 style="text-align: center;">(PDF Summary & QA)</h2>
-    """, unsafe_allow_html=True)
+# 使用 markdown 來創建置中的兩行標題
+st.markdown("""
+<h1 style="text-align: center;">知識檔案智能問答系統</h1>
+<h2 style="text-align: center;">(PDF Summary & QA)</h2>
+""", unsafe_allow_html=True)
 
-    # 添加一些間距
-    st.markdown("<br>", unsafe_allow_html=True)
-
+# 添加一些間距
+st.markdown("<br>", unsafe_allow_html=True)
 
 
 # 選擇 PDF 來源
